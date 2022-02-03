@@ -30,6 +30,7 @@ typedef struct{
 } note_t;
 
 
+
  char *partition = "G3F3E3B3A3";
 
  int ARR[12] = {59300,55972,52831,49866,47067,44425,41932,39579,37358,35261,33282,31414};
@@ -51,7 +52,7 @@ int lecture_note(note_t *n){
     }
     if(n->nom[0] == 'E')
         return ARR[4] >> (n->nom[1] - '0' - 2);
-    
+
     if(n->nom[0] == 'F'){
         if(n->nom[1] == '#')
             return ARR[6] >> (n->nom[2] - '0' - 2);
@@ -105,7 +106,7 @@ void __attribute__((interrupt)) SysTick_Handler() {
 }
 
 void configuration_potentiometre(){
-    
+
     enable_GPIOB();
     GPIOB.MODER |= 0b11; //Patte PB0 en mode analogique (0b11)
     GPIOB.OTYPER &= ~0b1;
@@ -120,14 +121,14 @@ uint32_t mesure_potentiometre(){
 }
 
 void configuration_leds(){
-    
+
     enable_GPIOA();
     GPIOA.MODER &= 0b11111111111111110101010101111111;
     GPIOA.MODER |= 0b00000000000000000101010100000000;
 }
 
 void configuration_temperature(){
-    
+
     uint32_t sequence[3] = {8,17,18};
     enable_GPIOB();
     GPIOB.MODER   |=  0b11; //Patte PB0 en mode analogique (0b11)
@@ -141,7 +142,7 @@ void configuration_temperature(){
 }
 
 uint32_t mesure_temperature(uint32_t* buffer){
-    
+
     return ADC_convert_sequence(&ADC1,buffer);
 }
 
@@ -152,20 +153,20 @@ void configuration_buzzer(){
     GPIOB.OSPEEDR |=  (0x2 << 9);
     //GPIOB.OSPEEDR &= ~(1 << 9);
     GPIOB.AFRH    |=  (0x1 << 4);
-    
+
 }
 
 void configuration_timer(){
-    
+
     //clock_init();
     enable_TIM2();
     RCC.APB1ENR |= (0x1);
     TIM2.CR1 |= /*(1<<7) | */(1<<2) | 1; //ARPE | URS | CEN
     TIM2.CCMR1 |= (0x1C << 10);
-    
+
     TIM2.CCER |= (1<<4);
     //TIM2.EGR |= 1;
-    
+
     TIM2.PSC = 10;
     TIM2.ARR = 0; //
     TIM2.CCR2 = 0;
@@ -173,7 +174,7 @@ void configuration_timer(){
 
 //Met le rapport cyclique a un certain pourcentage
 void rapport_cyclique(uint8_t pourcentage){
-    
+
     if(pourcentage > 100)
         pourcentage = 100;
     if(pourcentage == 1)
@@ -192,7 +193,7 @@ int main() {
   printf("APB2CLK =%9lu Hz\r\n",get_APB2CLK());*/
     int n = 0;
     int potarAvant = 0;
-    
+
     int compteurPartition = 0;
     int compteurNote = 0;
     SysTick_init(1000);
@@ -204,8 +205,8 @@ int main() {
     printf(CLEARCURSOR);
     printf(CLEARSCREEN);
     printf("\rpotar | VDDA  | temp \r\n");
-    
-    
+
+
     note_t notes[NB_NOTES];
     lecture_partition(notes,partition);
 
@@ -223,12 +224,12 @@ int main() {
         float temp = (TC2-TC1)*(VALTS-VALC1)/(VALC2-VALC1) + TC1;
         //printf("\r%3d%%  | %3.2fV | %3.2f°C | TIM2.CCR2 %lu", potar, ftod(VDDA), ftod(temp), TIM2.CCR2);
         n = (mesures[0] * TOTAL_TOURS / ANALOG_RES) % 4;
-        
+
         GPIOA.ODR = 1 << (n + 4);
-        
+
         if(potarAvant != potar)
         rapport_cyclique(potar);
-    
+
         potarAvant = potar;
 
         if(compteurPartition >= 20 && compteurNote < NB_NOTES){
@@ -239,10 +240,9 @@ int main() {
             rapport_cyclique(potar);
             compteurNote++;
         }
-        
+
         flag = 0;
     }
 
 return 0;
 }
-
