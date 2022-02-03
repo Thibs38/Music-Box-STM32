@@ -40,6 +40,8 @@ volatile uint32_t compteur = 0;
 //Retourne ARR qui correspond à la note
 int lecture_note(note_t *n){
     printf("%c%c%c ",n->nom[0],n->nom[1],n->nom[2]);
+    if(n->nom[0] == '_')
+        return 0;
     if(n->nom[0] == 'C'){
         if(n->nom[1] == '#')
             return ARR[1] >> (n->nom[2] - '0' - 2);
@@ -48,11 +50,15 @@ int lecture_note(note_t *n){
     if(n->nom[0] == 'D'){
         if(n->nom[1] == '#')
             return ARR[3] >> (n->nom[2] - '0' - 2);
+        if(n->nom[1] == 'b')
+            return ARR[1] >> (n->nom[2] - '0' - 2);
         return ARR[2] >> (n->nom[1] - '0' - 2);
     }
-    if(n->nom[0] == 'E')
+    if(n->nom[0] == 'E'){
+    	if(n->nom[1] == 'b')
+    	    return ARR[1] >> (n->nom[2] - '0' - 2); 
         return ARR[4] >> (n->nom[1] - '0' - 2);
-
+    }
     if(n->nom[0] == 'F'){
         if(n->nom[1] == '#')
             return ARR[6] >> (n->nom[2] - '0' - 2);
@@ -61,15 +67,22 @@ int lecture_note(note_t *n){
     if(n->nom[0] == 'G'){
         if(n->nom[1] == '#')
             return ARR[8] >> (n->nom[2] - '0' - 2);
+        if(n->nom[1] == 'b')
+            return ARR[6] >> (n->nom[2] - '0' - 2);
         return ARR[7] >> (n->nom[1] - '0' - 2);
     }
     if(n->nom[0] == 'A'){
         if(n->nom[1] == '#')
             return ARR[10] >> (n->nom[2] - '0' - 2);
+        if(n->nom[1] == 'b')
+            return ARR[8] >> (n->nom[2] - '0' - 2);
         return ARR[9] >> (n->nom[1] - '0' - 2);
     }
-    if(n->nom[0] == 'B')
+    if(n->nom[0] == 'B'){
+        if(n->nom[1] == 'b')
+            return ARR[10] >> (n->nom[2] - '0' - 2);
         return ARR[11] >> (n->nom[1] - '0' - 2);
+    }
 }
 
 void lecture_partition(note_t *notes, char *part){
