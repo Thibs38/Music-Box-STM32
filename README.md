@@ -26,13 +26,13 @@ Un projet micro controlleur en 3ème année de IESE à Polytech Grenoble.
 
 • Le bouton utilisateur permet de lancer la première musique, puis de faire un cycle sur au total 4 musiques:
 
-  ♫ Au Clair de la Lune
+    ♫ Au Clair de la Lune
   
-  ♫ La Berceuse de Brahm
+    ♫ La Berceuse de Brahm
   
-  ♫ Jojo Opening
+    ♫ Jojo Opening
   
-  ♫ 
+    ♫ 
   
 • Le carré de leds indique la musique en cours.
 
