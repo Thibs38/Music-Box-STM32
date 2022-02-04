@@ -25,9 +25,13 @@ Un projet micro controlleur en 3ème année de IESE à Polytech Grenoble.
 • La carte necessite une alimentation de 5V via USB, ou entre 5 et 15V par la patte Vin.
 
 • Le bouton utilisateur permet de lancer la première musique, puis de faire un cycle sur au total 4 musiques:
+
   ♫ Au Clair de la Lune
+  
   ♫ La Berceuse de Brahm
+  
   ♫ Jojo Opening
+  
   ♫ 
   
 • Le carré de leds indique la musique en cours.
