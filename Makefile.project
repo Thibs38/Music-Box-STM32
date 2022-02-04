@@ -13,13 +13,13 @@ ASMDEPS =
 SRCS = src/boot/startup.c src/boot/interrupts.c
 SRCS += src/sys/clock.c src/sys/power.c src/sys/serial_io.c
 SRCS += src/sys/init.c src/sys/syscalls.c
-SRCS += src/systick.c src/main.c src/adc.c
+SRCS += src/systick.c src/main.c src/adc.c src/IO.c src/musique.c
 
 # List of C header files (optional)
 CDEPS = src/sys/clock.h src/sys/power.h src/sys/serial_io.h
 CDEPS += src/sys/init.h src/sys/devices.h
 CDEPS += src/sys/cm4.h src/sys/cmsis_gcc.h
-CDEPS += src/systick.h src/adc.h
+CDEPS += src/systick.h src/adc.h src/IO.h src/musique.h
 
 # List of C++ source files (.cpp)
 CPPSRCS =
