@@ -8,7 +8,34 @@
 #include "sys/clock.h"
 #include "systick.h"
 #include "adc.h"
+
 #include "IO.h"
+
+void button_init() {
+/* Configure PB3-PB6, PB8 as inputs, no pull */
+	GPIOB.MODER = GPIOB.MODER & ~(0xFF<<6 | 3<<16);
+	GPIOB.PUPDR = GPIOB.PUPDR & ~(0xFF<<6 | 3<<16);
+}
+
+void button_irq_init () {
+  /* set PB8 as EXTI8 input */
+  SYSCFG.EXTICR3 = (SYSCFG.EXTICR3 & ~(0xf<<0)) | (0x1<<0);
+
+  /* Setup interrupt for EXTI8, falling edge */
+  EXTI.IMR  |= (1<<8);
+  EXTI.RTSR &= ~(1<<8);
+  EXTI.FTSR |= (1<<8);
+
+  /* enable EXTI15_10 IRQ */
+  NVIC.ISER[23/32]=(1<<(23%32)); 
+}
+
+uint32_t button_poll() {
+  return (~(GPIOB.IDR>>8) & 1); /* 1 if pressed */
+}
+
+
+
 
 void configuration_potentiometre(){
 
@@ -42,20 +69,45 @@ void configuration_buzzer(){
 
 }
 
-void configuration_timer(){
+/*void configuration_timer(){
 
     //clock_init();
     enable_TIM2();
     RCC.APB1ENR |= (0x1);
-    TIM2.CR1 |= /*(1<<7) | */(1<<2) | 1; //ARPE | URS | CEN
+    TIM2.CR1 |= (1<<7) | (1<<2); //ARPE | URS | CEN
     TIM2.CCMR1 |= (0x1C << 10);
 
     TIM2.CCER |= (1<<4);
-    //TIM2.EGR |= 1;
-
+    TIM2.EGR |= 1;
+    
     TIM2.PSC = 10;
     TIM2.ARR = 0; //
     TIM2.CCR2 = 0;
+
+}*/
+
+void configuration_timer(){
+    enable_TIM2();
+    RCC.APB1ENR |= 1;
+    TIM2.CR1 &= ~0x3FF;
+    TIM2.CR1 &= ~(3<<5);
+    TIM2.CR1 |= 1<<4;
+    
+    TIM2.CCMR1 |= 7<<12;
+    TIM2.CCMR1 |= 1<<11;
+    TIM2.CCMR1 &= ~(3<<8);
+    
+    TIM2.CCER |=(1<<4);
+    
+    TIM2.PSC = 10;
+    TIM2.ARR = 0; //
+    TIM2.CCR2 = 0;
+    
+    TIM2.EGR |= 2 | 1;
+}
+
+void lancer_timer(){
+        TIM2.CR1 |= 1;
 }
 
 //Met le rapport cyclique a un certain pourcentage
@@ -65,5 +117,5 @@ void rapport_cyclique(uint8_t pourcentage){
         pourcentage = 100;
     if(pourcentage == 1)
         pourcentage = 0;
-    TIM2.CCR2 = TIM2.ARR - TIM2.ARR * pourcentage / TIM2.ARR;
+    TIM2.CCR2 = TIM2.ARR - TIM2.ARR * pourcentage / 1000;
 }
