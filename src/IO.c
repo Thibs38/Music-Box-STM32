@@ -69,23 +69,8 @@ void configuration_buzzer(){
 
 }
 
-/*void configuration_timer(){
 
-    //clock_init();
-    enable_TIM2();
-    RCC.APB1ENR |= (0x1);
-    TIM2.CR1 |= (1<<7) | (1<<2); //ARPE | URS | CEN
-    TIM2.CCMR1 |= (0x1C << 10);
-
-    TIM2.CCER |= (1<<4);
-    TIM2.EGR |= 1;
-    
-    TIM2.PSC = 10;
-    TIM2.ARR = 0; //
-    TIM2.CCR2 = 0;
-
-}*/
-
+/*
 void configuration_timer(){
     enable_TIM2();
     RCC.APB1ENR |= 1;
@@ -104,10 +89,79 @@ void configuration_timer(){
     TIM2.CCR2 = 0;
     
     TIM2.EGR |= 2 | 1;
+}*/
+
+/*
+void configuration_timer(){
+    
+    enable_GPIOB();                // Autorisation de l'horloge sur le GPIOB 
+    enable_SYSCFG();
+    enable_TIM2();
+    GPIOB.MODER &= ~(3<<18);     //Met à 0 les bits de PB9 dans MODER 
+    GPIOB.MODER |= (1<<19);        // Configure PB9 en alternate function mode 
+    
+    GPIOB.OTYPER &=  ~(1<<9);
+    GPIOB.OSPEEDR |= (11<<18);
+    GPIOB.AFRH &= ~(15<<4);        // Met à 0 les bits de AFRH9 dans AFRH qui correspondent à PB9
+    GPIOB.AFRH |= (1<<4);         // Configure AF1 qui correspond à TIM2_CH2
+    
+    enable_TIM2();
+    TIM2.CR1 &= ~(15<<4);         //Met à 0 les bits DIR, CMS et ARPE de CR1 
+    TIM2.CR1 |= (1<<7);         //Configure le comptage en edge-aligned mode, la direction en upcounting et permet de protéger le registre ARR (ARPE=1)
+    TIM2.CNT = 0;                 //Initialise la valeur de départ du compteur à 0
+    TIM2.CCMR1 &= ~(7<<12);        // Met à 0 les bits OC2M de CCMR1
+    TIM2.CCMR1 |= (13<<11);        // Met '110' (PWM mode 1) dans OC2M et '1' dans OC2PE (permet de protéger la valeur de CCR2 pendant le comptage)
+    TIM2.CCER |= (1<<4);        // Active le signal OC2 du canal 2 sur la patte correspondante (PB9)
+    TIM2.EGR |= 1;                // Permet la remise à 0 du compteur lorsqu'il atteint ARR 
+    
+    TIM2.PSC = 10;
+    TIM2.ARR = 0;
+    TIM2.CCR2 = 0;
+}*/
+
+
+void configuration_timer(){
+
+    enable_TIM2();
+    RCC.APB1ENR |= (0x1);
+    
+    // Configuration de CR1 Control Register 1
+    
+    TIM2.CR1 &= ~(0b11<<8); //CKD = 0 Clock division
+    TIM2.CR1 |=  (1<<7);    //ARPE = 1 Auto-reload preload enabled
+    TIM2.CR1 &= ~(0b11<<5); //CMS = 0 Edge Aligned Mode
+    TIM2.CR1 &= ~(1<<4);    //DIR = 0 upcounter
+    TIM2.CR1 &= ~(1<<3);    //OPM = 0 One-pulse mode
+    TIM2.CR1 &= ~(1<<2);    //URS = 0 Update request source
+    TIM2.CR1 &= ~(1<<1);    //UDIS = 0 Update enabled
+    TIM2.CR1 &= ~(1<<0);    //CEN = 0 Counter disabled
+    
+    //On activera le compteur lorsque l'on en aura besoin (lecture d'une musique)
+    
+
+    
+    TIM2.CCMR1 |=  (0b11<<13); //OC2M = 110 PWM mode
+    TIM2.CCMR1 &= ~(1<<12); 
+    TIM2.CCMR1 |=  (1<<11);    //OC2PE = 1 Output compare 2 preload enable
+
+    TIM2.CCER |= (1<<4); //CC2E = 1 Capture/Compare 2 output enable
+    
+    TIM2.PSC = 10;   //On met une faible valeur au prescaler afin d'avoir de la précision dans les fréquences
+    TIM2.ARR = 1000; //On initialise ARR a une valeur != 0
+    TIM2.CCR2 = 0;   //On initialise CCR2 a zero -> rapport cyclique = 0
+    
+    TIM2.EGR |= 1; //UG = 1 Update Generation
+
 }
 
 void lancer_timer(){
-        TIM2.CR1 |= 1;
+    TIM2.CNT = 0;
+    TIM2.CR1 |= 1;
+}
+
+void arreter_timer(){
+    TIM2.CR1 &= ~1;
+    TIM2.CNT = 0;
 }
 
 //Met le rapport cyclique a un certain pourcentage
