@@ -63,7 +63,7 @@ int main() {
 
     init_musique(&musiques[0],partitions[0],180);
     init_musique(&musiques[1],partitions[1],180);
-    init_musique(&musiques[2],partitions[2],180);
+    init_musique(&musiques[2],partitions[2],600);
     init_musique(&musiques[3],partitions[3],180);
 
     
@@ -109,9 +109,9 @@ int main() {
                 if(compteurMusique == 0)
                     continue;
                 compteurPartition = 0;
-                rapport_cyclique(potar);
                 if(musiques[compteurMusique-1].notes[compteurNote].arr > 0){ //Si ARR vaut 0 (= un blanc), alors on ne rallume pas le timer pour eviter des "claquements"
                     TIM2.ARR = musiques[compteurMusique-1].notes[compteurNote].arr;
+                    rapport_cyclique(potar);
                     lancer_timer();
                 }
                 printf(" %d = %lu\r\n",compteurNote,musiques[compteurMusique-1].notes[compteurNote].arr);
