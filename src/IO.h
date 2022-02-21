@@ -1,3 +1,4 @@
+#include <stdint.h>
 
 #define REFRESH_GAP 10
 #define ANALOG_RES   4095
