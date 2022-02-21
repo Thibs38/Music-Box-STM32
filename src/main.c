@@ -40,16 +40,14 @@ void __attribute__((interrupt)) EXTI9_5_Handler(){
 
 int main() {
 
-    int potarAvant = 0;
-
     int compteurPartition = 0; //Compte les cycles de la boucle principale pour les notes
     int compteurNote = 0;      //Compte les notes de la musique en cours
     int compteurPotar = 0;     //Compte les cycles de la boucle principale pour le potar
     int compteurMusique = 0;   //Compte la musique en cours
 
-    uint8_t potar = 0;
+    uint8_t potar = 0;         //Valeur en % du potentiometre
     
-     
+     /* Initialisation */
     
     SysTick_init(1000);
     configuration_buzzer();
@@ -58,15 +56,20 @@ int main() {
     configuration_potentiometre();
     button_init();
     button_irq_init();
-    printf(CLEARCURSOR);
-    printf(CLEARSCREEN);
+
+    /* Efface le contenu de la console */
+
+    //printf(CLEARCURSOR);
+    //printf(CLEARSCREEN);
+
+    /* Initialisation des musiques */
 
     init_musique(&musiques[0],partitions[0],180);
     init_musique(&musiques[1],partitions[1],180);
     init_musique(&musiques[2],partitions[2],600);
     init_musique(&musiques[3],partitions[3],180);
 
-    
+    /* Boucle principale */
     
     while(1){
         while(flag == 0)
@@ -75,7 +78,8 @@ int main() {
 
         compteurPartition++;
         compteurPotar++;
-        if(compteurPotar == 20){
+
+        if(compteurPotar == 20){ // Délai sur les mesures du potentiometre afin de ne pas surchager la carte
             uint32_t mesure = 0;
             mesure = mesure_potentiometre();
 
@@ -83,18 +87,12 @@ int main() {
             compteurPotar = 0;
         }
         
-        //printf("\rpotar: %3d%%  ", potar);
 
-        //GPIOA.ODR = 1 << (n + 4);
-
-        //if(potarAvant != potar)
-        rapport_cyclique(potar);
+        rapport_cyclique(potar); //Changement du volume
         
         potarAvant = potar;
-        //printf("%d",compteurPartition);
 
-
-        //printf("%lu\r\n",TIM2.CNT);
+        //Automate: 
         switch(etat){
             case -1:  //Initialisation de la prochaine musique
                 arreter_timer();
@@ -114,37 +112,26 @@ int main() {
                     rapport_cyclique(potar);
                     lancer_timer();
                 }
-                printf(" %d = %lu\r\n",compteurNote,musiques[compteurMusique-1].notes[compteurNote].arr);
-                                    //printf("Note: %d -> %lu\r\n",compteurNote,musique.notes[compteurNote].arr);
-
 
                 etat = 1;
                 break;
             case 1: //On attend la duree de la note, puis on coupe le compteur
-                //printf("Etat 1 \r\n");
-                //printf("E 1 n: %d %d\r\n",TIM2.CCR2, TIM2.ARR);
                 if(compteurPartition >= musiques[compteurMusique-1].dureeNote * musiques[compteurMusique-1].notes[compteurNote].temps){ 
                     arreter_timer();
                     etat = 2;
                     compteurPartition = 0;
-                    //printf("Etat 1 -> 2\r");
                 }
                 break;
             case 2: //On attend la duree entre 2 notes
 
-                //printf("Etat 2 compteur: %d espaceNote: %f\r\n", compteurPartition,musique.espaceNote);
                 if(compteurPartition >= musiques[compteurMusique-1].espaceNote){
                     etat = 0;
                     compteurNote++;
                     if(compteurNote == musiques[compteurMusique-1].nbNotes)
                         compteurNote = 0;
-                    //printf("Etat 2 -> 0 \r");
                 }
                 break;
         }
-
-
     }
-
-return 0;
+    return 0;
 }

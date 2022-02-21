@@ -1,12 +1,4 @@
-#include <stdio.h>
-#include <math.h>
 #include <string.h>
-#include <stdlib.h>
-#include "sys/cm4.h"
-#include "sys/devices.h"
-#include "sys/init.h"
-#include "sys/clock.h"
-
 
 #include "musique.h"
 #include "IO.h"
@@ -20,7 +12,6 @@ char partitions[NB_MUSIQUES][NB_CHAR_MAX] = {"G41 G41 G41 A41 B43 A43 G41 B41 A4
 
 //Retourne ARR qui correspond à la note
 int lecture_note(char c1, char c2, char c3){
-    //printf("%c%c%c ",c1,c2,c3);
     if(c1 == '_')
         return 0;
     if(c1 == 'C'){
@@ -73,7 +64,6 @@ void lecture_partition(musique_t *musique, char *part){
     int j = 0; 
     int length = strlen(part);
     while(i < length){
-        //printf("%c%c", part[i],part[i+1]);
         char c1 = 0,c2 = 0,c3 = 0,c4 = '1';
 
         c1 = part[i];
@@ -83,7 +73,6 @@ void lecture_partition(musique_t *musique, char *part){
             i++;
 
             if(c2 == '#'){
-                //printf("%c", part[i]);
 
                 c3 = part[i];
                 i++;
@@ -95,14 +84,10 @@ void lecture_partition(musique_t *musique, char *part){
         i++;
         musique->notes[j].arr = lecture_note(c1,c2,c3);
         musique->notes[j].temps =  c4 - '0';
-        printf(" arr: %d temps: %d i: %d\r\n",lecture_note(c1,c2,c3), c4 - '0', i);
 
-        //printf("\r\n");
         j++;
     }
-    musique->nbNotes = j;
-    printf("nombre notes: %d\r\n",j);
-    
+    musique->nbNotes = j;    
 }
 
 void init_musique( musique_t *musique, char* partition,int tempo){
